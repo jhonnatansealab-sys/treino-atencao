@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>N-Back · Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#e3e8f4;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#3a4c75;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:520px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.hidden{display:none!important}
+.levels{display:flex;gap:8px;margin:16px 0}
+.levels button{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer}
+.levels button[aria-pressed=true]{background:var(--blue);color:var(--onblue);border-color:var(--blue);font-weight:500}
+.primary{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:500;cursor:pointer}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden;margin:8px 0 16px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(100%,300px);margin:8px auto 16px;padding:10px;border-radius:16px;border:3px solid transparent;transition:border-color .1s}
+.grid.ok{border-color:var(--green)}.grid.bad{border-color:var(--red)}
+.cell{aspect-ratio:1;border-radius:10px;background:var(--cell)}
+.cell.on{background:var(--blue)}
+.hint{text-align:center;min-height:24px;font-size:15px;color:var(--muted);margin-bottom:12px}
+.answers{display:flex;gap:10px}
+.answers button{flex:1;padding:16px 8px;border-radius:12px;font-size:16px;font-weight:500;cursor:pointer;border:1.5px solid}
+.answers button:disabled{opacity:.4;cursor:not-allowed}
+#btnSame{background:transparent;border-color:var(--green);color:var(--green)}
+#btnDiff{background:transparent;border-color:var(--muted);color:var(--ink)}
+.answers small{display:block;font-weight:400;font-size:12px;opacity:.8}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.rec{padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+.goal{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:var(--cell)}
+.goal b{font-weight:500}
+.goal p{color:var(--ink);margin:0}
+.steps{margin:0 0 12px;padding-left:20px;color:var(--ink)}
+.steps li{margin-bottom:6px}
+.ex{font-size:14px;border-left:3px solid var(--blue);padding-left:12px}
+.why{font-size:14px;margin:0 0 16px}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start" class="card">
+  <h1>N-Back</h1>
+  <div class="goal"><p><b>Objetivo:</b> dizer se o quadrado que acabou de acender está na <b>mesma posição</b> do quadrado que acendeu <b>N passos atrás</b> (N é 1, 2 ou 3, conforme o nível). Quanto mais respostas certas, melhor.</p></div>
+  <h2>Como jogar</h2>
+  <ol class="steps">
+    <li>Um quadrado acende por vez numa grade 3 por 3. Observe a posição de cada um.</li>
+    <li>Nos primeiros N passos, apenas memorize. Ainda não precisa responder.</li>
+    <li>Depois, compare com o quadrado de N passos atrás. Mesma posição: clique em <b>Igual</b> (tecla A ou ←). Posição diferente: clique em <b>Diferente</b> (tecla L ou →).</li>
+    <li>Responda antes do próximo quadrado acender. Sem resposta conta como erro.</li>
+  </ol>
+  <p class="ex"><b>Exemplo no 2-back:</b> acendeu o canto superior esquerdo, depois o centro, e agora o canto superior esquerdo de novo. É a mesma posição de 2 passos atrás, então a resposta é <b>Igual</b>.</p>
+  <p class="why">Treina memória de trabalho e atenção: a cada passo você precisa guardar a posição nova e esquecer a mais antiga. Comece pelo 1-back e suba de nível quando passar de 85% de acertos.</p>
+  <h2>Escolha o nível</h2>
+  <div class="levels" role="group" aria-label="Nível">
+    <button data-n="1" aria-pressed="false">1-back<br><small>iniciante</small></button>
+    <button data-n="2" aria-pressed="true">2-back<br><small>padrão</small></button>
+    <button data-n="3" aria-pressed="false">3-back<br><small>avançado</small></button>
+  </div>
+  <p id="levelHelp"></p>
+  <button class="primary" id="btnStart">Começar</button>
+  <div id="historyBox" class="hidden">
+    <h2 style="margin-top:20px">Últimas sessões</h2>
+    <table><thead><tr><th>Data</th><th>Nível</th><th>Acertos</th><th>Tempo</th></tr></thead><tbody id="historyBody"></tbody></table>
+    <button class="ghost" id="btnClear">Apagar histórico deste navegador</button>
+  </div>
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico fica só neste navegador.</p>
+</section>
+
+<section id="game" class="card hidden" aria-live="off">
+  <div class="top"><span id="lvl"></span><span id="step"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="grid" id="grid" aria-label="Grade 3 por 3"></div>
+  <div class="hint" id="hint" aria-live="polite"></div>
+  <div class="answers">
+    <button id="btnSame">Igual<small>tecla A ou ←</small></button>
+    <button id="btnDiff">Diferente<small>tecla L ou →</small></button>
+  </div>
+  <button class="ghost" id="btnStop">Parar sessão</button>
+</section>
+
+<section id="result" class="card hidden">
+  <h1>Sessão concluída</h1>
+  <p id="resLevel"></p>
+  <div class="stats">
+    <div class="stat"><b id="rAcc">0%</b><span>Precisão</span></div>
+    <div class="stat"><b id="rRt">-</b><span>Tempo médio de resposta</span></div>
+    <div class="stat"><b id="rHit">0</b><span>Acertos</span></div>
+    <div class="stat"><b id="rErr">0</b><span>Erros e omissões</span></div>
+  </div>
+  <div class="rec" id="rRec"></div>
+  <button class="primary" id="btnAgain">Jogar de novo</button>
+  <button class="ghost" id="btnMenu">Voltar ao início</button>
+</section>
+
+</main>
+<script>
+(function(){
+  var TRIAL_MS = 2600, STIM_MS = 900, MATCH_RATE = 0.3, BASE = 20;
+  var KEY = 'nback-historico-v1';
+  var $ = function(id){return document.getElementById(id)};
+  var screens = {start:$('start'), game:$('game'), result:$('result')};
+  var gridEl = $('grid'), cells = [];
+  for (var i=0;i<9;i++){var c=document.createElement('div');c.className='cell';gridEl.appendChild(c);cells.push(c)}
+
+  var N = 2, seq = [], idx = -1, timer1 = null, timer2 = null;
+  var answered = false, tStart = 0, running = false;
+  var stats = {hit:0, err:0, omit:0, rts:[], scored:0};
+  var helps = {
+    1:'Compare com o quadrado imediatamente anterior.',
+    2:'Compare com o quadrado de 2 passos atrás (o penúltimo).',
+    3:'Compare com o quadrado de 3 passos atrás. Exige bastante foco.'
+  };
+
+  function show(name){
+    for (var k in screens) screens[k].classList.toggle('hidden', k!==name);
+  }
+
+  function loadHist(){
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; }
+  }
+  function saveHist(list){
+    try { localStorage.setItem(KEY, JSON.stringify(list.slice(-30))); } catch(e){}
+  }
+  function renderHist(){
+    var list = loadHist().slice(-5).reverse();
+    $('historyBox').classList.toggle('hidden', list.length===0);
+    var tb = $('historyBody'); tb.innerHTML='';
+    list.forEach(function(h){
+      var tr = document.createElement('tr');
+      [h.date, h.n+'-back', h.acc+'%', h.rt ? h.rt+' ms' : '-'].forEach(function(t){
+        var td=document.createElement('td'); td.textContent=t; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  function pickLevel(n){
+    N = n;
+    document.querySelectorAll('.levels button').forEach(function(b){
+      b.setAttribute('aria-pressed', String(+b.dataset.n===n));
+    });
+    $('levelHelp').textContent = helps[n];
+  }
+  document.querySelectorAll('.levels button').forEach(function(b){
+    b.addEventListener('click', function(){ pickLevel(+b.dataset.n); });
+  });
+
+  function makeSeq(len){
+    var s = [];
+    for (var i=0;i<len;i++){
+      if (i<N){ s.push(Math.floor(Math.random()*9)); continue; }
+      var ref = s[i-N];
+      if (Math.random()<MATCH_RATE){ s.push(ref); }
+      else { var v; do { v = Math.floor(Math.random()*9); } while (v===ref); s.push(v); }
+    }
+    return s;
+  }
+
+  function start(){
+    clearTimers();
+    seq = makeSeq(BASE+N);
+    idx = -1; running = true;
+    stats = {hit:0, err:0, omit:0, rts:[], scored:0};
+    $('lvl').textContent = N+'-back';
+    show('game');
+    next();
+  }
+
+  function clearTimers(){ clearTimeout(timer1); clearTimeout(timer2); }
+
+  function setButtons(on){ $('btnSame').disabled = !on; $('btnDiff').disabled = !on; }
+
+  function next(){
+    gridEl.classList.remove('ok','bad');
+    idx++;
+    if (idx >= seq.length){ finish(); return; }
+    cells.forEach(function(c){c.classList.remove('on')});
+    cells[seq[idx]].classList.add('on');
+    $('step').textContent = 'Passo '+(idx+1)+' de '+seq.length;
+    $('prog').style.width = (idx/seq.length*100)+'%';
+    answered = false; tStart = performance.now();
+    var needs = idx >= N;
+    setButtons(needs);
+    $('hint').textContent = needs ? 'Igual ao de '+N+(N===1?' passo':' passos')+' atrás?' : 'Memorize a posição ('+(idx+1)+' de '+N+')';
+    timer1 = setTimeout(function(){ cells[seq[idx]].classList.remove('on'); }, STIM_MS);
+    timer2 = setTimeout(endTrial, TRIAL_MS);
+  }
+
+  function endTrial(){
+    if (idx >= N && !answered){
+      stats.omit++; stats.scored++;
+      gridEl.classList.add('bad');
+      $('hint').textContent = 'Sem resposta';
+    }
+    setTimeout(next, 120);
+  }
+
+  function answer(saysSame){
+    if (!running || answered || idx < N) return;
+    answered = true;
+    var rt = Math.round(performance.now() - tStart);
+    var truth = seq[idx] === seq[idx-N];
+    stats.scored++;
+    if (saysSame === truth){
+      stats.hit++; stats.rts.push(rt);
+      gridEl.classList.add('ok'); $('hint').textContent = 'Correto';
+    } else {
+      stats.err++;
+      gridEl.classList.add('bad'); $('hint').textContent = 'Incorreto';
+    }
+    setButtons(false);
+  }
+
+  function finish(){
+    running = false; clearTimers();
+    $('prog').style.width = '100%';
+    var acc = stats.scored ? Math.round(stats.hit/stats.scored*100) : 0;
+    var rt = stats.rts.length ? Math.round(stats.rts.reduce(function(a,b){return a+b},0)/stats.rts.length) : 0;
+    $('resLevel').textContent = 'Nível '+N+'-back · '+stats.scored+' respostas avaliadas';
+    $('rAcc').textContent = acc+'%';
+    $('rRt').textContent = rt ? rt+' ms' : '-';
+    $('rHit').textContent = stats.hit;
+    $('rErr').textContent = (stats.err+stats.omit) + (stats.omit ? ' ('+stats.omit+' sem resposta)' : '');
+    var msg;
+    if (acc >= 85 && N<3) msg = 'Ótimo desempenho. Sugestão: tente o nível '+(N+1)+'-back.';
+    else if (acc >= 85) msg = 'Excelente no nível máximo. Mantenha a prática regular.';
+    else if (acc < 60 && N>1) msg = 'Está difícil por enquanto. Sugestão: treine o nível '+(N-1)+'-back até ganhar confiança.';
+    else msg = 'Bom progresso. Repita este nível: sessões curtas e frequentes rendem mais.';
+    $('rRec').textContent = msg;
+    var h = loadHist();
+    h.push({date:new Date().toLocaleDateString('pt-BR'), n:N, acc:acc, rt:rt});
+    saveHist(h);
+    show('result');
+  }
+
+  function stop(){
+    running = false; clearTimers(); renderHist(); show('start');
+  }
+
+  $('btnStart').addEventListener('click', start);
+  $('btnAgain').addEventListener('click', start);
+  $('btnMenu').addEventListener('click', function(){ renderHist(); show('start'); });
+  $('btnStop').addEventListener('click', stop);
+  $('btnSame').addEventListener('click', function(){ answer(true); });
+  $('btnDiff').addEventListener('click', function(){ answer(false); });
+  $('btnClear').addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch(e){}
+    renderHist();
+  });
+  document.addEventListener('keydown', function(e){
+    if (screens.game.classList.contains('hidden')) return;
+    var k = e.key.toLowerCase();
+    if (k==='a' || k==='arrowleft'){ e.preventDefault(); answer(true); }
+    else if (k==='l' || k==='arrowright'){ e.preventDefault(); answer(false); }
+  });
+
+  pickLevel(2);
+  renderHist();
+})();
+</script>
+</body>
+</html>

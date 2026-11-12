@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cancelamento de alvos · Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#eef1f9;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;--selbg:#dbeafe;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#26345a;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a;--selbg:#1e3a6e}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.hidden{display:none!important}
+.levels{display:flex;gap:8px;margin:16px 0}
+.levels button{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer}
+.levels button[aria-pressed=true]{background:var(--blue);color:var(--onblue);border-color:var(--blue);font-weight:500}
+.primary{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:500;cursor:pointer}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.bar i{display:block;height:100%;width:100%;background:var(--blue);transition:width .25s linear}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted)}
+.model{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:2px 10px;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:8px 0 14px}
+.it{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);background:var(--cell);color:var(--ink);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;font-family:inherit}
+.it .l{font-size:clamp(14px,3.4vw,22px);font-weight:500}
+.it .m{font-size:8px;height:9px;letter-spacing:1px;color:var(--muted)}
+.it.sel{background:var(--selbg);border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.it.sel .l{text-decoration:line-through;text-decoration-thickness:2px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.rec{padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+.goal{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:var(--cell)}
+.goal b{font-weight:500}
+.goal p{color:var(--ink);margin:0}
+.steps{margin:0 0 12px;padding-left:20px;color:var(--ink)}
+.steps li{margin-bottom:6px}
+.why{font-size:14px;margin:0 0 16px}
+.demo{display:flex;gap:10px;align-items:center;margin:8px 0 16px}
+.demo .it{width:44px;cursor:default;flex:none}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start" class="card">
+  <h1>Cancelamento de alvos</h1>
+  <div class="goal"><p><b>Objetivo:</b> encontrar e marcar <b>todos os alvos</b> da grade, sem marcar os símbolos parecidos, antes de o tempo acabar.</p></div>
+  <p style="color:var(--ink)">O alvo é a letra <b>d</b> com exatamente <b>dois traços</b> (pontos), somando os de cima e os de baixo.</p>
+  <div class="demo" aria-label="Exemplos">
+    <button class="it sel" tabindex="-1"><span class="m">••</span><span class="l">d</span><span class="m"></span></button>
+    <button class="it sel" tabindex="-1"><span class="m">•</span><span class="l">d</span><span class="m">•</span></button>
+    <span style="color:var(--muted);font-size:13px">alvos</span>
+    <button class="it" tabindex="-1"><span class="m">•••</span><span class="l">d</span><span class="m"></span></button>
+    <button class="it" tabindex="-1"><span class="m">••</span><span class="l">p</span><span class="m"></span></button>
+    <span style="color:var(--muted);font-size:13px">não são</span>
+  </div>
+  <h2>Como jogar</h2>
+  <ol class="steps">
+    <li>Clique em cada alvo para marcá-lo. Clique de novo para desmarcar, se errar.</li>
+    <li>Varra a grade em ordem, linha por linha, sem pular nenhuma.</li>
+    <li>Atenção aos parecidos: d com 1, 3 ou 4 traços, e a letra p, <b>não</b> são alvos.</li>
+    <li>Quando terminar, clique em <b>Terminei</b>. Se o tempo acabar, a sessão encerra sozinha.</li>
+  </ol>
+  <p class="why">A precisão é calculada assim: alvos marcados, menos marcações erradas, dividido pelo total de alvos. Esquecer um alvo e marcar algo errado reduzem sua nota. Treina atenção concentrada e discriminação de detalhes, habilidades avaliadas em testes psicossociais.</p>
+  <h2>Tempo da sessão</h2>
+  <div class="levels" role="group" aria-label="Tempo">
+    <button data-t="45" aria-pressed="false">45 s</button>
+    <button data-t="60" aria-pressed="true">60 s</button>
+    <button data-t="90" aria-pressed="false">90 s</button>
+  </div>
+  <button class="primary" id="btnStart">Começar</button>
+  <div id="historyBox" class="hidden">
+    <h2 style="margin-top:20px">Últimas sessões</h2>
+    <table><thead><tr><th>Data</th><th>Tempo</th><th>Precisão</th><th>Erros</th></tr></thead><tbody id="historyBody"></tbody></table>
+    <button class="ghost" id="btnClear">Apagar histórico deste navegador</button>
+  </div>
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico fica só neste navegador.</p>
+</section>
+
+<section id="game" class="card hidden">
+  <div class="top">
+    <span class="model" aria-label="Alvo">Alvo:
+      <span class="it sel" style="width:38px;cursor:default;display:flex"><span class="m">•</span><span class="l">d</span><span class="m">•</span></span>
+      <small>(2 traços)</small>
+    </span>
+    <span id="clock" aria-live="off">60 s</span>
+  </div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="grid" id="grid"></div>
+  <button class="primary" id="btnFinish">Terminei</button>
+  <button class="ghost" id="btnStop">Cancelar sessão</button>
+</section>
+
+<section id="result" class="card hidden">
+  <h1>Sessão concluída</h1>
+  <p id="resInfo"></p>
+  <div class="stats">
+    <div class="stat"><b id="rAcc">0%</b><span>Precisão</span></div>
+    <div class="stat"><b id="rHit">0</b><span>Alvos encontrados</span></div>
+    <div class="stat"><b id="rMiss">0</b><span>Alvos esquecidos</span></div>
+    <div class="stat"><b id="rWrong">0</b><span>Marcações erradas</span></div>
+  </div>
+  <div class="rec" id="rRec"></div>
+  <button class="primary" id="btnAgain">Jogar de novo</button>
+  <button class="ghost" id="btnMenu">Voltar ao início</button>
+</section>
+
+</main>
+<script>
+(function(){
+  var COLS = 12, ROWS = 8, TARGET_RATE = 0.25;
+  var KEY = 'cancelamento-historico-v1';
+  var $ = function(id){return document.getElementById(id)};
+  var screens = {start:$('start'), game:$('game'), result:$('result')};
+  var seconds = 60, items = [], left = 0, tick = null, t0 = 0, running = false;
+
+  function show(n){ for (var k in screens) screens[k].classList.toggle('hidden', k!==n); }
+  function loadHist(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function saveHist(l){ try { localStorage.setItem(KEY, JSON.stringify(l.slice(-30))); } catch(e){} }
+  function renderHist(){
+    var list = loadHist().slice(-5).reverse();
+    $('historyBox').classList.toggle('hidden', list.length===0);
+    var tb = $('historyBody'); tb.innerHTML='';
+    list.forEach(function(h){
+      var tr=document.createElement('tr');
+      [h.date, h.t+' s', h.acc+'%', h.err].forEach(function(t){
+        var td=document.createElement('td'); td.textContent=t; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('.levels button').forEach(function(b){
+    b.addEventListener('click', function(){
+      seconds = +b.dataset.t;
+      document.querySelectorAll('.levels button').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x===b));
+      });
+    });
+  });
+
+  function rnd(n){ return Math.floor(Math.random()*n); }
+
+  function makeItem(){
+    if (Math.random() < TARGET_RATE) return {l:'d', n:2};
+    var l, n;
+    do { l = Math.random()<0.5 ? 'd' : 'p'; n = 1 + rnd(4); } while (l==='d' && n===2);
+    return {l:l, n:n};
+  }
+
+  function build(){
+    var g = $('grid'); g.innerHTML=''; items=[];
+    for (var i=0;i<COLS*ROWS;i++){
+      var it = makeItem();
+      var top = rnd(it.n+1), bot = it.n-top;
+      it.target = (it.l==='d' && it.n===2);
+      it.sel = false;
+      var b = document.createElement('button');
+      b.className='it'; b.type='button';
+      b.setAttribute('aria-label', 'letra '+it.l+' com '+it.n+' traços');
+      b.innerHTML = '<span class="m">'+Array(top+1).join('•')+'</span><span class="l">'+it.l+'</span><span class="m">'+Array(bot+1).join('•')+'</span>';
+      (function(el, o){
+        el.addEventListener('click', function(){
+          if (!running) return;
+          o.sel = !o.sel; el.classList.toggle('sel', o.sel);
+        });
+      })(b, it);
+      g.appendChild(b); items.push(it);
+    }
+  }
+
+  function start(){
+    clearInterval(tick);
+    build(); running = true; left = seconds; t0 = performance.now();
+    $('clock').textContent = left+' s';
+    $('prog').style.width = '100%';
+    show('game');
+    tick = setInterval(function(){
+      var el = (performance.now()-t0)/1000;
+      left = Math.max(0, Math.ceil(seconds-el));
+      $('clock').textContent = left+' s';
+      $('prog').style.width = Math.max(0,(seconds-el)/seconds*100)+'%';
+      if (el >= seconds) finish();
+    }, 250);
+  }
+
+  function finish(){
+    if (!running) return;
+    running = false; clearInterval(tick);
+    var used = Math.min(seconds, Math.round((performance.now()-t0)/1000));
+    var targets=0, hit=0, wrong=0;
+    items.forEach(function(o){
+      if (o.target){ targets++; if (o.sel) hit++; }
+      else if (o.sel) wrong++;
+    });
+    var miss = targets-hit;
+    var acc = targets ? Math.max(0, Math.round((hit-wrong)/targets*100)) : 0;
+    $('resInfo').textContent = 'Tempo usado: '+used+' s de '+seconds+' s · '+targets+' alvos na grade';
+    $('rAcc').textContent = acc+'%';
+    $('rHit').textContent = hit+' de '+targets;
+    $('rMiss').textContent = miss;
+    $('rWrong').textContent = wrong;
+    var msg;
+    if (wrong > hit*0.25 && wrong >= 3) msg = 'Muitas marcações erradas: você pode estar indo rápido demais. Tente reduzir um pouco o ritmo e conferir os traços.';
+    else if (miss > targets*0.35) msg = 'Vários alvos ficaram para trás. Tente varrer a grade em ordem, linha por linha, sem pular.';
+    else if (acc >= 85) msg = 'Ótimo desempenho. Para aumentar o desafio, escolha um tempo menor.';
+    else msg = 'Bom progresso. Sessões curtas e frequentes ajudam mais do que uma sessão longa.';
+    $('rRec').textContent = msg;
+    var h = loadHist();
+    h.push({date:new Date().toLocaleDateString('pt-BR'), t:seconds, acc:acc, err:wrong+miss});
+    saveHist(h);
+    show('result');
+  }
+
+  function stop(){ running=false; clearInterval(tick); renderHist(); show('start'); }
+
+  $('btnStart').addEventListener('click', start);
+  $('btnAgain').addEventListener('click', start);
+  $('btnFinish').addEventListener('click', finish);
+  $('btnStop').addEventListener('click', stop);
+  $('btnMenu').addEventListener('click', function(){ renderHist(); show('start'); });
+  $('btnClear').addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch(e){}
+    renderHist();
+  });
+  renderHist();
+})();
+</script>
+</body>
+</html>

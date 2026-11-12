@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trilha alternada · Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#e3e8f4;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;--doneb:#dbeafe;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#26345a;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a;--doneb:#1e3a6e}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.hidden{display:none!important}
+.levels{display:flex;gap:8px;margin:16px 0}
+.levels button{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer}
+.levels button[aria-pressed=true]{background:var(--blue);color:var(--onblue);border-color:var(--blue);font-weight:500}
+.primary{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:500;cursor:pointer}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted);gap:8px}
+.top b{color:var(--ink);font-weight:500}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.goal{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:var(--cell)}
+.goal b{font-weight:500}
+.goal p{color:var(--ink);margin:0}
+.steps{margin:0 0 12px;padding-left:20px;color:var(--ink)}
+.steps li{margin-bottom:6px}
+.ex{font-size:14px;border-left:3px solid var(--blue);padding-left:12px}
+.why{font-size:14px;margin:0 0 16px}
+.seq{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-size:15px}
+.seq span{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;border:2px solid var(--blue);font-weight:500;background:var(--card)}
+.seq em{font-style:normal;color:var(--muted)}
+.opt{display:flex;gap:8px;align-items:center;font-size:14px;margin:0 0 16px;color:var(--ink)}
+.board{position:relative;width:100%;aspect-ratio:10/7;border-radius:16px;background:var(--cell);margin:8px 0 14px;overflow:hidden;touch-action:manipulation}
+@media (max-width:520px){.board{aspect-ratio:1/1.05}}
+.board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.node{position:absolute;width:42px;height:42px;border-radius:50%;border:2px solid var(--blue);background:var(--card);color:var(--ink);font-size:16px;font-weight:500;cursor:pointer;display:grid;place-items:center;padding:0;font-family:inherit}
+.node.done{background:var(--doneb);color:var(--muted);border-color:var(--muted)}
+.node.bad{background:var(--red);border-color:var(--red);color:#fff}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.rec{padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start" class="card">
+  <h1>Trilha alternada</h1>
+  <div class="goal"><p><b>Objetivo:</b> ligar, na ordem certa, números e letras que se alternam (<b>1 → A → 2 → B → 3 → C...</b>), no menor tempo possível e sem errar.</p></div>
+  <div class="seq" aria-label="Exemplo de sequência"><span>1</span><em>→</em><span>A</span><em>→</em><span>2</span><em>→</em><span>B</span><em>→</em><span>3</span><em>→</em><span>C</span><em>→ ...</em></div>
+  <h2>Como jogar</h2>
+  <ol class="steps">
+    <li>Vários círculos com números e letras aparecem espalhados pela tela.</li>
+    <li>Comece pelo <b>1</b>, depois clique na <b>A</b>, depois no <b>2</b>, depois na <b>B</b>, e assim por diante, sempre alternando número e letra.</li>
+    <li>Cada círculo certo fica marcado e uma linha liga ao anterior. Clicar no círculo errado conta como erro, mas o jogo continua.</li>
+    <li>O cronômetro corre o tempo todo. A sessão termina quando você liga o último círculo.</li>
+  </ol>
+  <p class="why">Treina atenção alternada e flexibilidade mental: você precisa trocar de regra a cada clique (número, letra, número...) enquanto procura o próximo círculo. É a ideia do clássico Trail Making Test B, usado em avaliações de atenção.</p>
+  <h2>Escolha o tamanho</h2>
+  <div class="levels" role="group" aria-label="Tamanho">
+    <button data-m="5" aria-pressed="false">Curto<br><small>10 círculos</small></button>
+    <button data-m="8" aria-pressed="true">Médio<br><small>16 círculos</small></button>
+    <button data-m="12" aria-pressed="false">Longo<br><small>24 círculos</small></button>
+  </div>
+  <label class="opt"><input type="checkbox" id="hintBox"> Mostrar dica do próximo círculo (mais fácil)</label>
+  <button class="primary" id="btnStart">Começar</button>
+  <div id="historyBox" class="hidden">
+    <h2 style="margin-top:20px">Últimas sessões</h2>
+    <table><thead><tr><th>Data</th><th>Tamanho</th><th>Tempo</th><th>Erros</th></tr></thead><tbody id="historyBody"></tbody></table>
+    <button class="ghost" id="btnClear">Apagar histórico deste navegador</button>
+  </div>
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico fica só neste navegador.</p>
+</section>
+
+<section id="game" class="card hidden">
+  <div class="top"><span id="clock">0,0 s</span><span id="hint"></span><span id="errs">0 erros</span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="board" id="board"><svg id="lines" aria-hidden="true"></svg></div>
+  <button class="ghost" id="btnStop">Parar sessão</button>
+</section>
+
+<section id="result" class="card hidden">
+  <h1>Sessão concluída</h1>
+  <p id="resLevel"></p>
+  <div class="stats">
+    <div class="stat"><b id="rTime">0 s</b><span>Tempo total</span></div>
+    <div class="stat"><b id="rErr">0</b><span>Erros</span></div>
+    <div class="stat"><b id="rPer">-</b><span>Tempo médio por círculo</span></div>
+    <div class="stat"><b id="rAcc">-</b><span>Precisão (acertos entre cliques)</span></div>
+  </div>
+  <div class="rec" id="rRec"></div>
+  <button class="primary" id="btnAgain">Jogar de novo</button>
+  <button class="ghost" id="btnMenu">Voltar ao início</button>
+</section>
+
+</main>
+<script>
+(function(){
+  var KEY = 'trilha-historico-v1', R = 21, MIND = 56;
+  var LETTERS = 'ABCDEFGHIJKL';
+  var $ = function(id){return document.getElementById(id)};
+  var screens = {start:$('start'), game:$('game'), result:$('result')};
+  var m = 8, seq = [], pos = [], nodes = [], next = 0, errors = 0, clicks = 0;
+  var t0 = 0, tick = null, running = false, hint = false;
+  var board = $('board'), lines = $('lines');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  function show(n){ for (var k in screens) screens[k].classList.toggle('hidden', k!==n); }
+  function loadHist(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function saveHist(l){ try { localStorage.setItem(KEY, JSON.stringify(l.slice(-30))); } catch(e){} }
+  function fmt(ms){ return (ms/1000).toFixed(1).replace('.', ',')+' s'; }
+  function renderHist(){
+    var list = loadHist().slice(-5).reverse();
+    $('historyBox').classList.toggle('hidden', list.length===0);
+    var tb = $('historyBody'); tb.innerHTML='';
+    list.forEach(function(h){
+      var tr=document.createElement('tr');
+      [h.date, (h.m*2)+' círculos', fmt(h.ms), h.err].forEach(function(t){
+        var td=document.createElement('td'); td.textContent=t; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('.levels button').forEach(function(b){
+    b.addEventListener('click', function(){
+      m = +b.dataset.m;
+      document.querySelectorAll('.levels button').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x===b));
+      });
+    });
+  });
+
+  function makeSeq(){
+    var s = [];
+    for (var i=0;i<m;i++){ s.push(String(i+1)); s.push(LETTERS[i]); }
+    return s;
+  }
+
+  function layout(count){
+    var W = board.clientWidth, H = board.clientHeight;
+    var pts = [], md = MIND;
+    for (var i=0;i<count;i++){
+      var placed = false, tries = 0, p;
+      while (!placed){
+        p = {x: R+6+Math.random()*(W-2*R-12), y: R+6+Math.random()*(H-2*R-12)};
+        var ok = true;
+        for (var j=0;j<pts.length;j++){
+          var dx = pts[j].x-p.x, dy = pts[j].y-p.y;
+          if (dx*dx+dy*dy < md*md){ ok=false; break; }
+        }
+        if (ok) placed = true;
+        else if (++tries > 400){ md -= 4; tries = 0; }
+      }
+      pts.push(p);
+    }
+    return pts;
+  }
+
+  function build(){
+    board.querySelectorAll('.node').forEach(function(n){ n.remove(); });
+    lines.innerHTML = ''; nodes = [];
+    seq = makeSeq();
+    var labels = seq.slice();
+    for (var i=labels.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=labels[i]; labels[i]=labels[j]; labels[j]=t; }
+    pos = layout(labels.length);
+    labels.forEach(function(lab, i){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'node'; b.textContent = lab;
+      b.style.left = (pos[i].x-R)+'px'; b.style.top = (pos[i].y-R)+'px';
+      b.setAttribute('aria-label', (/\d/.test(lab) ? 'número ' : 'letra ')+lab);
+      b.addEventListener('pointerdown', function(e){ e.preventDefault(); press(lab, b, pos[i]); });
+      board.appendChild(b);
+      nodes.push({lab:lab, el:b, p:pos[i]});
+    });
+  }
+
+  var last = null;
+  function press(lab, el, p){
+    if (!running || el.classList.contains('done')) return;
+    clicks++;
+    if (lab === seq[next]){
+      el.classList.add('done');
+      if (last){
+        var ln = document.createElementNS(SVGNS, 'line');
+        ln.setAttribute('x1', last.x); ln.setAttribute('y1', last.y);
+        ln.setAttribute('x2', p.x); ln.setAttribute('y2', p.y);
+        ln.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() || '#2563eb');
+        ln.setAttribute('stroke-width', '3'); ln.setAttribute('stroke-linecap', 'round');
+        lines.appendChild(ln);
+      }
+      last = p; next++;
+      $('prog').style.width = (next/seq.length*100)+'%';
+      updHint();
+      if (next >= seq.length) finish();
+    } else {
+      errors++;
+      $('errs').textContent = errors+(errors===1?' erro':' erros');
+      el.classList.add('bad');
+      setTimeout(function(){ el.classList.remove('bad'); }, 250);
+    }
+  }
+
+  function updHint(){ $('hint').innerHTML = (hint && next<seq.length) ? 'Próximo: <b>'+seq[next]+'</b>' : ''; }
+
+  function start(){
+    clearInterval(tick);
+    hint = $('hintBox').checked;
+    show('game');
+    build();
+    next = 0; errors = 0; clicks = 0; last = null; running = true;
+    $('errs').textContent = '0 erros'; $('prog').style.width = '0';
+    updHint();
+    t0 = performance.now();
+    $('clock').textContent = '0,0 s';
+    tick = setInterval(function(){ $('clock').textContent = fmt(performance.now()-t0); }, 100);
+  }
+
+  function finish(){
+    running = false; clearInterval(tick);
+    var ms = Math.round(performance.now()-t0);
+    var per = ms/seq.length;
+    var acc = clicks ? Math.round(seq.length/clicks*100) : 0;
+    $('resLevel').textContent = (m*2)+' círculos · '+(hint?'com dica':'sem dica');
+    $('rTime').textContent = fmt(ms);
+    $('rErr').textContent = errors;
+    $('rPer').textContent = fmt(per);
+    $('rAcc').textContent = acc+'%';
+    var msg;
+    if (errors >= 5) msg = 'Muitos cliques errados. Antes de clicar, confirme qual é o próximo da sequência. Ir um pouco mais devagar costuma dar tempo total menor.';
+    else if (errors <= 1 && per < 2500 && m < 12) msg = 'Ótimo ritmo e poucos erros. Sugestão: tente o tamanho maior'+(hint?' ou jogue sem a dica.':'.');
+    else if (errors <= 1 && !hint) msg = 'Excelente. Continue praticando para reduzir o tempo.';
+    else msg = 'Bom progresso. Treine a troca número-letra: já deixe em mente qual é o próximo enquanto clica no atual.';
+    $('rRec').textContent = msg;
+    var h = loadHist();
+    h.push({date:new Date().toLocaleDateString('pt-BR'), m:m, ms:ms, err:errors});
+    saveHist(h);
+    show('result');
+  }
+
+  function stop(){ running=false; clearInterval(tick); renderHist(); show('start'); }
+
+  $('btnStart').addEventListener('click', start);
+  $('btnAgain').addEventListener('click', start);
+  $('btnMenu').addEventListener('click', function(){ renderHist(); show('start'); });
+  $('btnStop').addEventListener('click', stop);
+  $('btnClear').addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch(e){}
+    renderHist();
+  });
+  renderHist();
+})();
+</script>
+</body>
+</html>

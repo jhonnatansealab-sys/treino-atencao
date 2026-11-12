@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stroop · Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#e3e8f4;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#3a4c75;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:520px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.hidden{display:none!important}
+.levels{display:flex;gap:8px;margin:16px 0}
+.levels button{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer}
+.levels button[aria-pressed=true]{background:var(--blue);color:var(--onblue);border-color:var(--blue);font-weight:500}
+.primary{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:500;cursor:pointer}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted)}
+.goal{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:var(--cell)}
+.goal b{font-weight:500}
+.goal p{color:var(--ink);margin:0}
+.steps{margin:0 0 12px;padding-left:20px;color:var(--ink)}
+.steps li{margin-bottom:6px}
+.ex{font-size:14px;border-left:3px solid var(--blue);padding-left:12px}
+.why{font-size:14px;margin:0 0 16px}
+.demo{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-size:14px}
+.demo .w{background:#1b2540;border-radius:10px;padding:6px 16px;font-size:22px;font-weight:500;letter-spacing:1px}
+.stage{position:relative;height:190px;border-radius:16px;background:#1b2540;display:flex;align-items:center;justify-content:center;margin:8px 0 14px;user-select:none}
+.word{font-size:clamp(44px,14vw,72px);font-weight:500;letter-spacing:2px}
+.fix{color:#94a3b8;font-size:48px;font-weight:400}
+.fb{position:absolute;left:50%;top:12px;transform:translateX(-50%) translateY(-6px);opacity:0;white-space:nowrap;padding:6px 16px;border-radius:999px;font-size:15px;font-weight:500;background:#4ade80;color:#052e16;pointer-events:none;transition:opacity .12s,transform .12s}
+.fb.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{padding:16px 8px;border-radius:12px;border:0;font-size:17px;font-weight:500;cursor:pointer;color:#0b1b3a}
+.opt small{display:block;font-weight:400;font-size:12px;opacity:.75}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.rec{padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+.sound{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:2px 10px;font-size:13px;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start" class="card">
+  <h1>Stroop</h1>
+  <div class="goal"><p><b>Objetivo:</b> dizer a <b>cor da tinta</b> em que a palavra está escrita, ignorando o que a palavra diz. Quanto mais acertos e mais rápido, melhor.</p></div>
+  <h2>Como jogar</h2>
+  <ol class="steps">
+    <li>Uma palavra de cor aparece no centro da tela, escrita em uma cor de tinta.</li>
+    <li>Ignore o significado da palavra. Olhe só para a cor em que ela está pintada.</li>
+    <li>Clique no botão dessa cor (ou aperte a tecla 1, 2, 3 ou 4).</li>
+    <li>Em cerca de metade das vezes a palavra e a cor coincidem. Na outra metade, não: aí está o desafio.</li>
+    <li>Cada palavra tem um tempo limite. Sem resposta conta como erro.</li>
+  </ol>
+  <div class="demo">
+    <span class="w" style="color:#f87171">AZUL</span><span>→ a tinta é vermelha, então a resposta é <b>Vermelho</b>.</span>
+  </div>
+  <p class="why">Treina atenção seletiva e resistência à interferência: segurar o hábito automático de ler e focar apenas no que a tarefa pede. É uma habilidade muito usada em testes psicossociais.</p>
+  <h2>Escolha a velocidade</h2>
+  <div class="levels" role="group" aria-label="Velocidade">
+    <button data-l="0" aria-pressed="false">Calmo<br><small>4 s por palavra</small></button>
+    <button data-l="1" aria-pressed="true">Normal<br><small>2,5 s</small></button>
+    <button data-l="2" aria-pressed="false">Rápido<br><small>1,5 s</small></button>
+  </div>
+  <button class="primary" id="btnStart">Começar</button>
+  <div id="historyBox" class="hidden">
+    <h2 style="margin-top:20px">Últimas sessões</h2>
+    <table><thead><tr><th>Data</th><th>Nível</th><th>Acertos</th><th>Interferência</th></tr></thead><tbody id="historyBody"></tbody></table>
+    <button class="ghost" id="btnClear">Apagar histórico deste navegador</button>
+  </div>
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico fica só neste navegador.</p>
+</section>
+
+<section id="game" class="card hidden">
+  <div class="top"><span id="lvl"></span><button class="sound" id="btnSound" type="button" aria-pressed="true">Som: ligado</button><span id="step"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="stage" id="stage" aria-live="polite">
+    <div class="word" id="word"></div>
+    <div class="fb" id="fb" role="status"></div>
+  </div>
+  <div class="opts" id="opts"></div>
+  <button class="ghost" id="btnStop">Parar sessão</button>
+</section>
+
+<section id="result" class="card hidden">
+  <h1>Sessão concluída</h1>
+  <p id="resLevel"></p>
+  <div class="stats">
+    <div class="stat"><b id="rAcc">0%</b><span>Precisão</span></div>
+    <div class="stat"><b id="rInt">-</b><span>Interferência (incoerente menos coerente)</span></div>
+    <div class="stat"><b id="rCong">-</b><span>Tempo médio, cor igual à palavra</span></div>
+    <div class="stat"><b id="rInc">-</b><span>Tempo médio, cor diferente da palavra</span></div>
+    <div class="stat"><b id="rErr">0</b><span>Erros e omissões</span></div>
+  </div>
+  <div class="rec" id="rRec"></div>
+  <button class="primary" id="btnAgain">Jogar de novo</button>
+  <button class="ghost" id="btnMenu">Voltar ao início</button>
+</section>
+
+</main>
+<script>
+(function(){
+  var TRIALS = 40, GAP = 350;
+  var LIMITS = [4000, 2500, 1500], NAMES = ['Calmo','Normal','Rápido'];
+  var COLORS = [
+    {n:'Vermelho', w:'VERMELHO', c:'#f87171'},
+    {n:'Azul',     w:'AZUL',     c:'#60a5fa'},
+    {n:'Verde',    w:'VERDE',    c:'#4ade80'},
+    {n:'Amarelo',  w:'AMARELO',  c:'#facc15'}
+  ];
+  var KEY = 'stroop-historico-v1';
+  var $ = function(id){return document.getElementById(id)};
+  var screens = {start:$('start'), game:$('game'), result:$('result')};
+  var level = 1, trials = [], idx = -1, running = false, answered = false, tStart = 0;
+  var t1 = null, t2 = null, toastT = null, st = {};
+  var soundOn = true, actx = null;
+
+  function show(n){ for (var k in screens) screens[k].classList.toggle('hidden', k!==n); }
+  function loadHist(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function saveHist(l){ try { localStorage.setItem(KEY, JSON.stringify(l.slice(-30))); } catch(e){} }
+  function renderHist(){
+    var list = loadHist().slice(-5).reverse();
+    $('historyBox').classList.toggle('hidden', list.length===0);
+    var tb = $('historyBody'); tb.innerHTML='';
+    list.forEach(function(h){
+      var tr=document.createElement('tr');
+      [h.date, NAMES[h.l], h.acc+'%', (h.int>0?'+':'')+h.int+' ms'].forEach(function(t){
+        var td=document.createElement('td'); td.textContent=t; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('.levels button').forEach(function(b){
+    b.addEventListener('click', function(){
+      level = +b.dataset.l;
+      document.querySelectorAll('.levels button').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x===b));
+      });
+    });
+  });
+
+  var optsEl = $('opts'), optBtns = [];
+  COLORS.forEach(function(c, i){
+    var b = document.createElement('button');
+    b.type='button'; b.className='opt'; b.style.background=c.c;
+    b.innerHTML = c.n+'<small>tecla '+(i+1)+'</small>';
+    b.addEventListener('click', function(){ answer(i); });
+    optsEl.appendChild(b); optBtns.push(b);
+  });
+  function setOpts(on){ optBtns.forEach(function(b){ b.disabled = !on; }); }
+
+  function beep(){
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      [[660,0],[880,0.09]].forEach(function(n){
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.frequency.value = n[0];
+        g.gain.setValueAtTime(0.001, actx.currentTime+n[1]);
+        g.gain.exponentialRampToValueAtTime(0.18, actx.currentTime+n[1]+0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime+n[1]+0.16);
+        o.connect(g); g.connect(actx.destination);
+        o.start(actx.currentTime+n[1]); o.stop(actx.currentTime+n[1]+0.18);
+      });
+    } catch(e){}
+  }
+  function toast(text){
+    var fb = $('fb'); fb.className = 'fb show'; fb.textContent = '✓ '+text;
+    beep(); clearTimeout(toastT);
+    toastT = setTimeout(function(){ fb.className = 'fb'; }, 700);
+  }
+
+  function makeTrials(){
+    var arr = [];
+    for (var i=0;i<TRIALS;i++){
+      var w = Math.floor(Math.random()*4), ink;
+      if (i%2===0) ink = w;
+      else { do { ink = Math.floor(Math.random()*4); } while (ink===w); }
+      arr.push({w:w, ink:ink, cong:(w===ink)});
+    }
+    for (var j=arr.length-1;j>0;j--){ var k=Math.floor(Math.random()*(j+1)); var t=arr[j]; arr[j]=arr[k]; arr[k]=t; }
+    return arr;
+  }
+
+  function clearTimers(){ clearTimeout(t1); clearTimeout(t2); }
+  function updTop(){ $('step').textContent = Math.max(idx+1,0)+' de '+TRIALS+' · '+st.hit+' certos'; }
+
+  function start(){
+    clearTimers();
+    trials = makeTrials(); idx = -1; running = true;
+    st = {hit:0, err:0, omit:0, rc:[], ri:[], nc:0, ni:0};
+    $('lvl').textContent = NAMES[level];
+    $('prog').style.width = '0';
+    $('word').textContent = ''; $('fb').className = 'fb';
+    setOpts(false); show('game');
+    var c = 3;
+    $('word').innerHTML = '<span class="fix">'+c+'</span>';
+    (function cd(){
+      t1 = setTimeout(function(){
+        c--;
+        if (c>0){ $('word').innerHTML = '<span class="fix">'+c+'</span>'; cd(); }
+        else next();
+      }, 800);
+    })();
+    updTop();
+  }
+
+  function next(){
+    idx++;
+    if (idx >= TRIALS){ finish(); return; }
+    var t = trials[idx];
+    var w = $('word');
+    w.textContent = COLORS[t.w].w;
+    w.style.color = COLORS[t.ink].c;
+    answered = false; setOpts(true);
+    tStart = performance.now();
+    $('prog').style.width = (idx/TRIALS*100)+'%';
+    updTop();
+    t2 = setTimeout(timeout, LIMITS[level]);
+  }
+
+  function endTrial(){
+    $('word').innerHTML = '<span class="fix">+</span>';
+    setOpts(false);
+    t1 = setTimeout(next, GAP);
+  }
+
+  function timeout(){
+    if (answered) return;
+    answered = true; st.omit++;
+    var t = trials[idx]; if (t.cong) st.nc++; else st.ni++;
+    endTrial();
+  }
+
+  function answer(i){
+    if (!running || answered || idx<0) return;
+    answered = true; clearTimeout(t2);
+    var rt = Math.round(performance.now()-tStart);
+    var t = trials[idx];
+    if (t.cong) st.nc++; else st.ni++;
+    if (i === t.ink){
+      st.hit++; (t.cong ? st.rc : st.ri).push(rt);
+      toast('Acertou! '+rt+' ms');
+    } else st.err++;
+    endTrial();
+  }
+
+  function mean(a){ return a.length ? Math.round(a.reduce(function(x,y){return x+y},0)/a.length) : 0; }
+
+  function finish(){
+    running = false; clearTimers();
+    $('prog').style.width = '100%';
+    var acc = Math.round(st.hit/TRIALS*100);
+    var mc = mean(st.rc), mi = mean(st.ri);
+    var inter = (mc && mi) ? mi - mc : 0;
+    $('resLevel').textContent = 'Velocidade: '+NAMES[level]+' · '+TRIALS+' palavras';
+    $('rAcc').textContent = acc+'%';
+    $('rInt').textContent = (mc && mi) ? (inter>0?'+':'')+inter+' ms' : '-';
+    $('rCong').textContent = mc ? mc+' ms' : '-';
+    $('rInc').textContent = mi ? mi+' ms' : '-';
+    $('rErr').textContent = (st.err+st.omit) + (st.omit ? ' ('+st.omit+' sem resposta)' : '');
+    var msg;
+    if (st.omit >= 6) msg = 'Muitas palavras ficaram sem resposta. Tente um nível mais calmo para ganhar ritmo.';
+    else if (st.err >= 6) msg = 'Muitos erros: a leitura automática da palavra está atrapalhando. Foque só na cor e respire entre as respostas.';
+    else if (acc >= 90 && level<2) msg = 'Ótimo desempenho. Sugestão: tente a velocidade '+NAMES[level+1]+'.';
+    else if (acc >= 90) msg = 'Excelente na velocidade máxima. Mantenha a prática regular.';
+    else msg = 'Bom progresso. Quanto menor a diferença de tempo entre cor igual e diferente, melhor sua atenção seletiva.';
+    $('rRec').textContent = msg;
+    var h = loadHist();
+    h.push({date:new Date().toLocaleDateString('pt-BR'), l:level, acc:acc, int:inter});
+    saveHist(h);
+    show('result');
+  }
+
+  function stop(){ running=false; clearTimers(); renderHist(); show('start'); }
+
+  $('btnSound').addEventListener('click', function(){
+    soundOn = !soundOn;
+    this.setAttribute('aria-pressed', String(soundOn));
+    this.textContent = 'Som: '+(soundOn?'ligado':'desligado');
+  });
+  $('btnStart').addEventListener('click', start);
+  $('btnAgain').addEventListener('click', start);
+  $('btnMenu').addEventListener('click', function(){ renderHist(); show('start'); });
+  $('btnStop').addEventListener('click', stop);
+  $('btnClear').addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch(e){}
+    renderHist();
+  });
+  document.addEventListener('keydown', function(e){
+    if (screens.game.classList.contains('hidden')) return;
+    var n = parseInt(e.key, 10);
+    if (n>=1 && n<=4){ e.preventDefault(); answer(n-1); }
+  });
+  renderHist();
+})();
+</script>
+</body>
+</html>

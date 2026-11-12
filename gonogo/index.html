@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go / No-Go · Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#e3e8f4;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#3a4c75;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:520px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.hidden{display:none!important}
+.levels{display:flex;gap:8px;margin:16px 0}
+.levels button{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer}
+.levels button[aria-pressed=true]{background:var(--blue);color:var(--onblue);border-color:var(--blue);font-weight:500}
+.primary{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:500;cursor:pointer}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.stage{position:relative;height:240px;border-radius:16px;border:3px solid transparent;background:var(--cell);display:flex;align-items:center;justify-content:center;margin:8px 0 14px;user-select:none;cursor:pointer;touch-action:manipulation}
+.fb{position:absolute;left:50%;top:12px;transform:translateX(-50%) translateY(-6px);opacity:0;white-space:nowrap;padding:6px 16px;border-radius:999px;font-size:15px;font-weight:500;background:var(--green);color:#052e16;pointer-events:none;transition:opacity .12s,transform .12s}
+.fb.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.goal{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:var(--cell)}
+.goal b{font-weight:500}
+.goal p{color:var(--ink);margin:0}
+.steps{margin:0 0 16px;padding-left:20px;color:var(--ink)}
+.steps li{margin-bottom:6px}
+.why{font-size:14px;margin:0 0 16px}
+.sound{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:2px 10px;font-size:13px;cursor:pointer}
+.dot{width:140px;height:140px;border-radius:50%;visibility:hidden}
+.dot.go{background:var(--green);visibility:visible}
+.dot.nogo{background:var(--red);visibility:visible}
+.fix{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--muted);opacity:.5}
+.count{position:absolute;font-size:56px;font-weight:500;color:var(--ink)}
+.rule{display:flex;gap:16px;justify-content:center;font-size:14px;margin-bottom:12px;flex-wrap:wrap}
+.rule span{display:inline-flex;align-items:center;gap:6px}
+.rule i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.rec{padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start" class="card">
+  <h1>Go / No-Go</h1>
+  <div class="goal"><p><b>Objetivo:</b> clicar o mais rápido possível quando o círculo for <b>verde</b> e <b>não clicar</b> quando for <b>vermelho</b>. Quanto mais acertos e menos erros, melhor.</p></div>
+  <h2>Como jogar</h2>
+  <ol class="steps">
+    <li>Mantenha o olhar no centro da tela. Os círculos aparecem um de cada vez, por poucos instantes.</li>
+    <li><span style="color:var(--green);font-weight:500">Verde:</span> clique na área do jogo (ou aperte Espaço) o mais rápido que puder.</li>
+    <li><span style="color:var(--red);font-weight:500">Vermelho:</span> não faça nada. Segure o impulso de clicar.</li>
+    <li>São 50 círculos, cerca de 70% verdes e 30% vermelhos. Quando você acerta um clique no verde, aparece um aviso rápido na tela.</li>
+  </ol>
+  <p class="why">Dois tipos de erro são medidos: <b>deixar passar um verde</b> (sinal de distração) e <b>clicar no vermelho</b> (sinal de impulsividade). Treina atenção sustentada e controle de impulsos, habilidades avaliadas em testes psicossociais.</p>
+  <div class="levels" role="group" aria-label="Velocidade">
+    <button data-l="0" aria-pressed="false">Calmo<br><small>1,0 s</small></button>
+    <button data-l="1" aria-pressed="true">Normal<br><small>0,7 s</small></button>
+    <button data-l="2" aria-pressed="false">Rápido<br><small>0,5 s</small></button>
+  </div>
+  <button class="primary" id="btnStart">Começar</button>
+  <div id="historyBox" class="hidden">
+    <h2 style="margin-top:20px">Últimas sessões</h2>
+    <table><thead><tr><th>Data</th><th>Nível</th><th>Acertos</th><th>Tempo</th></tr></thead><tbody id="historyBody"></tbody></table>
+    <button class="ghost" id="btnClear">Apagar histórico deste navegador</button>
+  </div>
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico fica só neste navegador.</p>
+</section>
+
+<section id="game" class="card hidden">
+  <div class="top"><span id="lvl"></span><button class="sound" id="btnSound" type="button" aria-pressed="true">Som: ligado</button><span id="step"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="stage" id="stage" role="button" tabindex="0" aria-label="Área de resposta: clique quando o círculo for verde">
+    <div class="fix"></div>
+    <div class="dot" id="dot"></div>
+    <div class="count" id="count"></div>
+    <div class="fb" id="fb" role="status" aria-live="assertive"></div>
+  </div>
+  <div class="rule">
+    <span><i style="background:var(--green)"></i> Verde: clique</span>
+    <span><i style="background:var(--red)"></i> Vermelho: segure</span>
+  </div>
+  <button class="ghost" id="btnStop">Parar sessão</button>
+</section>
+
+<section id="result" class="card hidden">
+  <h1>Sessão concluída</h1>
+  <p id="resLevel"></p>
+  <div class="stats">
+    <div class="stat"><b id="rAcc">0%</b><span>Precisão</span></div>
+    <div class="stat"><b id="rRt">-</b><span>Tempo médio de reação</span></div>
+    <div class="stat"><b id="rOmit">0</b><span>Omissões (verde sem clique)</span></div>
+    <div class="stat"><b id="rComm">0</b><span>Impulsos (clicou no vermelho)</span></div>
+  </div>
+  <div class="rec" id="rRec"></div>
+  <button class="primary" id="btnAgain">Jogar de novo</button>
+  <button class="ghost" id="btnMenu">Voltar ao início</button>
+</section>
+
+</main>
+<script>
+(function(){
+  var TRIALS = 50, NOGO_RATE = 0.3, GAP = 800, JUDGE_EXTRA = 450;
+  var STIM = [1000, 700, 500], NAMES = ['Calmo','Normal','Rápido'];
+  var KEY = 'gonogo-historico-v1';
+  var $ = function(id){return document.getElementById(id)};
+  var screens = {start:$('start'), game:$('game'), result:$('result')};
+  var level = 1, seq = [], idx = -1, t1 = null, t2 = null, t3 = null, running = false;
+  var responded = false, judged = false, tStart = 0, acceptingClicks = false;
+  var soundOn = true, actx = null;
+
+  function beep(kind){
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var notes = kind==='ok' ? [[660,0],[880,0.09]] : [[180,0],[150,0.12]];
+      notes.forEach(function(n){
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = kind==='ok' ? 'sine' : 'square';
+        o.frequency.value = n[0];
+        g.gain.setValueAtTime(0.001, actx.currentTime+n[1]);
+        g.gain.exponentialRampToValueAtTime(0.18, actx.currentTime+n[1]+0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime+n[1]+0.16);
+        o.connect(g); g.connect(actx.destination);
+        o.start(actx.currentTime+n[1]); o.stop(actx.currentTime+n[1]+0.18);
+      });
+    } catch(e){}
+  }
+
+  var toastT = null;
+  function toast(text){
+    var fb = $('fb');
+    fb.className = 'fb show';
+    fb.textContent = '✓ ' + text;
+    beep('ok');
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ fb.className = 'fb'; }, 800);
+  }
+
+  function updTop(){
+    $('step').textContent = Math.max(idx+1,0)+' de '+TRIALS+' · '+(st.hit+st.inhib)+' certos';
+  }
+  var st = {};
+
+  function show(n){ for (var k in screens) screens[k].classList.toggle('hidden', k!==n); }
+  function loadHist(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function saveHist(l){ try { localStorage.setItem(KEY, JSON.stringify(l.slice(-30))); } catch(e){} }
+  function renderHist(){
+    var list = loadHist().slice(-5).reverse();
+    $('historyBox').classList.toggle('hidden', list.length===0);
+    var tb = $('historyBody'); tb.innerHTML='';
+    list.forEach(function(h){
+      var tr=document.createElement('tr');
+      [h.date, NAMES[h.l], h.acc+'%', h.rt ? h.rt+' ms' : '-'].forEach(function(t){
+        var td=document.createElement('td'); td.textContent=t; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('.levels button').forEach(function(b){
+    b.addEventListener('click', function(){
+      level = +b.dataset.l;
+      document.querySelectorAll('.levels button').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x===b));
+      });
+    });
+  });
+
+  function makeSeq(){
+    var s = [], run = 0;
+    for (var i=0;i<TRIALS;i++){
+      var nogo = Math.random() < NOGO_RATE;
+      if (nogo && run >= 2) nogo = false;
+      run = nogo ? run+1 : 0;
+      s.push(nogo ? 'nogo' : 'go');
+    }
+    return s;
+  }
+
+  function clearTimers(){ clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); }
+  var stage = $('stage'), dot = $('dot');
+
+  function start(){
+    clearTimers();
+    seq = makeSeq(); idx = -1; running = true;
+    st = {hit:0, omit:0, comm:0, inhib:0, rts:[]};
+    $('lvl').textContent = NAMES[level];
+    $('step').textContent = '';
+    $('prog').style.width = '0';
+    stage.className = 'stage'; dot.className = 'dot'; $('fb').className = 'fb';
+    show('game');
+    var c = 3;
+    acceptingClicks = false;
+    $('count').textContent = c;
+    (function cd(){
+      t1 = setTimeout(function(){
+        c--;
+        if (c>0){ $('count').textContent = c; cd(); }
+        else { $('count').textContent=''; next(); }
+      }, 800);
+    })();
+  }
+
+  function next(){
+    stage.className = 'stage';
+    $('fb').className = 'fb';
+    idx++;
+    if (idx >= TRIALS){ finish(); return; }
+    var type = seq[idx];
+    responded = false; judged = false; acceptingClicks = true;
+    updTop();
+    $('prog').style.width = (idx/TRIALS*100)+'%';
+    dot.className = 'dot '+type;
+    tStart = performance.now();
+    t1 = setTimeout(function(){ dot.className = 'dot'; }, STIM[level]);
+    t3 = setTimeout(judge, STIM[level] + JUDGE_EXTRA);
+    var total = STIM[level] + GAP + Math.floor(Math.random()*250);
+    t2 = setTimeout(endTrial, total);
+  }
+
+  function judge(){
+    if (judged) return;
+    judged = true; acceptingClicks = false;
+    if (seq[idx]==='go') st.omit++; else st.inhib++;
+    updTop();
+  }
+
+  function endTrial(){
+    acceptingClicks = false;
+    t1 = setTimeout(next, 150);
+  }
+
+  function respond(){
+    if (!running || !acceptingClicks || responded || judged) return;
+    responded = true; judged = true;
+    var type = seq[idx];
+    var rt = Math.round(performance.now()-tStart);
+    if (type==='go'){
+      st.hit++; st.rts.push(rt);
+      toast('Acertou! '+rt+' ms');
+    } else {
+      st.comm++;
+    }
+    updTop();
+  }
+
+  function finish(){
+    running = false; clearTimers();
+    $('prog').style.width = '100%';
+    var good = st.hit + st.inhib;
+    var acc = Math.round(good/TRIALS*100);
+    var rt = st.rts.length ? Math.round(st.rts.reduce(function(a,b){return a+b},0)/st.rts.length) : 0;
+    $('resLevel').textContent = 'Velocidade: '+NAMES[level]+' · '+TRIALS+' estímulos';
+    $('rAcc').textContent = acc+'%';
+    $('rRt').textContent = rt ? rt+' ms' : '-';
+    $('rOmit').textContent = st.omit;
+    $('rComm').textContent = st.comm;
+    var msg;
+    if (st.comm >= 5 && st.comm >= st.omit) msg = 'Muitos cliques no vermelho: o ritmo pode estar mais rápido que a sua checagem. Tente olhar a cor antes de clicar.';
+    else if (st.omit >= 5) msg = 'Vários verdes passaram sem clique: sinal de lapsos de atenção. Pausas curtas e sessões frequentes ajudam.';
+    else if (acc >= 90 && level<2) msg = 'Ótimo controle. Sugestão: tente o nível '+NAMES[level+1]+'.';
+    else if (acc >= 90) msg = 'Excelente no nível mais rápido. Mantenha a prática regular.';
+    else msg = 'Bom progresso. Repita este nível: sessões curtas e frequentes rendem mais.';
+    $('rRec').textContent = msg;
+    var h = loadHist();
+    h.push({date:new Date().toLocaleDateString('pt-BR'), l:level, acc:acc, rt:rt});
+    saveHist(h);
+    show('result');
+  }
+
+  function stop(){ running=false; clearTimers(); renderHist(); show('start'); }
+
+  stage.addEventListener('mousedown', function(e){ e.preventDefault(); respond(); });
+  stage.addEventListener('touchstart', function(e){ e.preventDefault(); respond(); }, {passive:false});
+  document.addEventListener('keydown', function(e){
+    if (screens.game.classList.contains('hidden')) return;
+    if (e.code==='Space' || e.key==='Enter'){ e.preventDefault(); respond(); }
+  });
+  $('btnSound').addEventListener('click', function(){
+    soundOn = !soundOn;
+    this.setAttribute('aria-pressed', String(soundOn));
+    this.textContent = 'Som: '+(soundOn?'ligado':'desligado');
+  });
+  $('btnStart').addEventListener('click', start);
+  $('btnAgain').addEventListener('click', start);
+  $('btnMenu').addEventListener('click', function(){ renderHist(); show('start'); });
+  $('btnStop').addEventListener('click', stop);
+  $('btnClear').addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch(e){}
+    renderHist();
+  });
+  renderHist();
+})();
+</script>
+</body>
+</html>

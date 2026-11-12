@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treino de atenção</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#5b6785;--line:#d5dbe9;
+  --cell:#e3e8f4;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--onblue:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121a2f;--card:#1b2540;--ink:#f1f5f9;--muted:#94a3b8;--line:#33436b;
+  --cell:#3a4c75;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--onblue:#0b1b3a}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:32px 16px}
+main{width:100%;max-width:720px}
+h1{font-size:26px;font-weight:500;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 24px}
+.list{display:grid;gap:14px}
+a.game{display:flex;gap:16px;align-items:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+a.game:hover{border-color:var(--blue)}
+a.game:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.thumb{flex:none;width:72px;height:72px;border-radius:12px;background:var(--cell);display:grid;place-items:center}
+.thumb svg{width:56px;height:56px}
+.body{flex:1;min-width:0}
+.body h2{font-size:18px;font-weight:500;margin:0}
+.body p{margin:2px 0 6px;color:var(--muted);font-size:14px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 10px;color:var(--muted)}
+.go{flex:none;font-size:14px;font-weight:500;color:var(--blue)}
+.tips{margin-top:24px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.tips h2{font-size:16px;font-weight:500;margin:0 0 6px}
+.tips ul{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:16px}
+@media (max-width:480px){.go{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Treino de atenção</h1>
+  <p class="lead">Cinco jogos rápidos para treinar foco, controle de impulsos, memória de trabalho e flexibilidade mental. Escolha um e jogue por 5 a 10 minutos.</p>
+
+  <div class="list">
+    <a class="game" href="cancelamento/index.html">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><g fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted)"><rect x="4" y="4" width="22" height="22" rx="5"/><rect x="30" y="4" width="22" height="22" rx="5"/><rect x="4" y="30" width="22" height="22" rx="5"/></g><rect x="30" y="30" width="22" height="22" rx="5" fill="none" stroke="var(--blue)" stroke-width="2.5"/><path d="M36 41l4 4 8-9" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="body">
+        <h2>Cancelamento de alvos</h2>
+        <p>Ache e marque só o símbolo certo no meio de muitos parecidos.</p>
+        <div class="tags"><span class="tag">Atenção concentrada</span><span class="tag">45 a 90 s</span></div>
+      </div>
+      <span class="go">Jogar</span>
+    </a>
+
+    <a class="game" href="gonogo/index.html">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><circle cx="17" cy="28" r="12" fill="var(--green)"/><circle cx="40" cy="28" r="12" fill="var(--red)"/></svg>
+      </div>
+      <div class="body">
+        <h2>Go / No-Go</h2>
+        <p>Clique no círculo verde e segure o impulso diante do vermelho.</p>
+        <div class="tags"><span class="tag">Atenção sustentada</span><span class="tag">Controle de impulsos</span><span class="tag">cerca de 2 min</span></div>
+      </div>
+      <span class="go">Jogar</span>
+    </a>
+
+    <a class="game" href="nback/index.html">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><g fill="var(--bg)" stroke="var(--line)" stroke-width="1"><rect x="6" y="6" width="12" height="12" rx="3"/><rect x="22" y="6" width="12" height="12" rx="3"/><rect x="38" y="6" width="12" height="12" rx="3"/><rect x="6" y="22" width="12" height="12" rx="3"/><rect x="38" y="22" width="12" height="12" rx="3"/><rect x="6" y="38" width="12" height="12" rx="3"/><rect x="22" y="38" width="12" height="12" rx="3"/><rect x="38" y="38" width="12" height="12" rx="3"/></g><rect x="22" y="22" width="12" height="12" rx="3" fill="var(--blue)"/></svg>
+      </div>
+      <div class="body">
+        <h2>N-Back</h2>
+        <p>Lembre onde o quadrado acendeu alguns passos atrás.</p>
+        <div class="tags"><span class="tag">Memória de trabalho</span><span class="tag">3 níveis</span><span class="tag">cerca de 1 min</span></div>
+      </div>
+      <span class="go">Jogar</span>
+    </a>
+
+    <a class="game" href="stroop/index.html">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><text x="28" y="38" text-anchor="middle" font-size="30" font-weight="500" fill="#f87171" style="font-family:system-ui,sans-serif">Aa</text><rect x="8" y="44" width="40" height="5" rx="2.5" fill="#60a5fa"/></svg>
+      </div>
+      <div class="body">
+        <h2>Stroop</h2>
+        <p>Diga a cor da tinta e ignore o que a palavra está escrevendo.</p>
+        <div class="tags"><span class="tag">Atenção seletiva</span><span class="tag">Resistência à interferência</span><span class="tag">cerca de 2 min</span></div>
+      </div>
+      <span class="go">Jogar</span>
+    </a>
+
+    <a class="game" href="trilha/index.html">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><path d="M12 42L24 16L36 38L46 14" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--card)" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="42" r="6"/><circle cx="24" cy="16" r="6"/><circle cx="36" cy="38" r="6"/><circle cx="46" cy="14" r="6"/></g></svg>
+      </div>
+      <div class="body">
+        <h2>Trilha alternada</h2>
+        <p>Ligue 1, A, 2, B, 3, C... alternando números e letras.</p>
+        <div class="tags"><span class="tag">Atenção alternada</span><span class="tag">Flexibilidade mental</span><span class="tag">1 a 2 min</span></div>
+      </div>
+      <span class="go">Jogar</span>
+    </a>
+  </div>
+
+  <div class="tips">
+    <h2>Para aproveitar melhor</h2>
+    <ul>
+      <li>Prefira sessões curtas e frequentes, de preferência todos os dias.</li>
+      <li>Jogue num lugar silencioso e com o celular longe.</li>
+      <li>Priorize acertar. A velocidade vem com a prática.</li>
+    </ul>
+  </div>
+
+  <p class="foot">Funciona offline. Nada é enviado para fora: o histórico de cada jogo fica só neste navegador.</p>
+</main>
+</body>
+</html>
